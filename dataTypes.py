@@ -1,5 +1,59 @@
 from manim import *
-import cv2
+class BlinkingCursor(VMobject):
+    def __init__(self, *args, **kwargs):
+        self.cursor_frame = Rectangle(width=0.1,height=0.5).scale(0.4).move_to([2,2,0])
+        self.cursor_frame.set_fill(color=PURE_GREEN, opacity=1)
+        self.cursor_frame.set_stroke(color=BLACK,width=0,opacity=0)
+        super().__init__(*args, **kwargs)
+        self.add(self.cursor_frame)
+    def blinking_on(self):
+        self.fade_in_anims = [FadeIn(self.cursor_frame, run_time=0.5) for _ in range(3)]
+        self.fade_out_anims = [FadeOut(self.cursor_frame, run_time=0.5) for _ in range(3)]
+        self.blinking_anim = [item for pair in zip(self.fade_out_anims,self.fade_in_anims) for item in pair]
+        return self.blinking_anim
+    def get_cursor(self):
+        return self.cursor_frame
+    def write_text(self,text,*args,**kwargs):
+        font_to_use = "resources/Quicksand-VariableFont_wght.ttf"
+        text = Text(text,*args,**kwargs, font=font_to_use).scale(0.3).next_to(self.get_cursor(),RIGHT,buff=0.05,aligned_edge=LEFT)
+        anims = []
+        for letter in text :
+            if not letter == "*":
+                anims.append((AnimationGroup(Write(letter),run_time=0.1),AnimationGroup(self.get_cursor().animate(run_time=0.1).next_to(letter, buff=0, aligned_edge=DOWN))))
+            elif letter == "*":
+                anims.append((AnimationGroup(Write(letter),run_time=0.1),AnimationGroup(self.get_cursor().animate(run_time=0.1).next_to(letter, buff=0, aligned_edge=UP))))
+        return anims
+class TerminalPrompt(VMobject):
+    def __init__(self,directory="~", *args, **kwargs):
+        font_to_use = "resources/Quicksand-VariableFont_wght.ttf"
+        self.directory = directory
+        self.terminal_prompt_text =  Text(self.directory,*args,**kwargs, font=font_to_use).scale(0.35)
+        self.terminal_prompt_frame = SurroundingRectangle(self.terminal_prompt_text, buff=0.05)
+        self.terminal_prompt_frame.set_stroke(width=2,opacity=1)
+        self.terminal_prompt_frame.set_fill("#32a871",opacity=1)
+        self.terminal_prompt_text.move_to(self.terminal_prompt_frame.get_center())
+        self.terminal_prompt = VGroup(
+                               self.terminal_prompt_text)
+        super().__init__(*args, **kwargs)
+        self.add(self.terminal_prompt)
+class Terminal(VMobject):
+    def __init__(self, *args, **kwargs):
+        self.terminal_frame = Rectangle(width=6,height=6).round_corners(radius=0.2)
+        self.terminal_frame.set_fill(color="#002B36", opacity=.50)
+        self.terminal_frame.set_stroke(color=ORANGE, opacity=1)
+        self.terminal_upper_portion_line = Line(LEFT*3,RIGHT*3).next_to(self.terminal_frame.get_center(),UP*9.8)
+        self.terminal_upper_portion_line.set_stroke(color=ORANGE, opacity=1)
+        self.text1 = Text("⌄", color=YELLOW).scale(0.5).next_to(self.terminal_frame.get_center(),UP*10.5+RIGHT*8)
+        self.text2 = Text("^", color=BLUE).scale(0.4).next_to(self.text1,buff=0.1)
+        self.text3 = Text("✖",color=PURE_RED).scale(0.3).next_to(self.text2,buff=0.1)
+        self.terminal_dots = VGroup( self.text1, self.text2,self.text3)
+        self.terminal_user_name = Text("user@user-Laptop",color="#bafc03").scale(0.3).next_to(self.terminal_frame.get_center(),UP*10.5)
+        self.terminal = VGroup(self.terminal_frame,self.terminal_upper_portion_line,
+                               self.terminal_dots,self.terminal_user_name)
+        
+        super().__init__(*args, **kwargs)
+        self.add(self.terminal)
+
 
 class DataTypes(Scene):
     def construct(self):
@@ -10,14 +64,14 @@ class DataTypes(Scene):
         sql_logo = Group(sql_image,gear_image).move_to([-4,3,0]).scale(0.2)
         self.play(FadeIn(sql_logo))
         always_rotate(gear_image, rate=60*DEGREES)
-        title = Text("Data Types and Managing Data", font=font_to_use).scale(0.6).next_to(sql_logo,RIGHT*3)
+        title = Text("Data Types and Managing Data", font=font_to_use,color=BLACK).set_stroke(width=1,color="#FFFFFF",opacity=1).scale(0.6).next_to(sql_logo,RIGHT*3)
         self.wait(2)
         self.play(DrawBorderThenFill(title))
         self.wait(1)
         self.play(FadeToColor(title[:9], YELLOW))
-        data_types = Text("Data Types", font=font_to_use).scale(0.6).next_to(title,DOWN)
+        data_types = Text("Data Types", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*1.5)
         data_types.set_stroke(color=BLACK,opacity=1)
-        highlighting_rectangle = Rectangle(width=2.3,height=0.28).move_to([0.25,2.26,0])
+        highlighting_rectangle = Rectangle(width=2.3,height=0.28).move_to(data_types.get_center()+[0,-0.1,0])
         highlighting_rectangle.set_fill(color="#1be7ff", opacity=.5)
         highlighting_rectangle.set_stroke(color=None, opacity=0)
         data_types.set_z_index(highlighting_rectangle.z_index+1)
@@ -100,13 +154,30 @@ class DataTypes(Scene):
         
         
         
-        create = Text("CREATE a Table", font=font_to_use).scale(0.6).next_to(title,DOWN)
+        create = Text("CREATE a Table", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*1.5)
         create.set_stroke(color=BLACK,opacity=1)
-        highlighting_rectangle1 = Rectangle(width=3.1,height=0.28).move_to([0.25,2.26,0])
+        highlighting_rectangle1 = Rectangle(width=3.1,height=0.28).move_to(create.get_center()+[0,-0.15,0])
         highlighting_rectangle1.set_fill(color="#1be7ff", opacity=.5)
         highlighting_rectangle1.set_stroke(color=None, opacity=0)
         create.set_z_index(highlighting_rectangle1.z_index+1)
         self.play(ReplacementTransform(highlighting_rectangle,highlighting_rectangle1))
         self.play(ReplacementTransform(data_types,create))
-        
+        terminal = Terminal().move_to([3.4,-0.5,0])
+        prompt1 = TerminalPrompt("postgres>",color=PINK).move_to([1.2,1.6,0])
+        cursor1 = BlinkingCursor().next_to(prompt1,buff=0.2)
+        old_position1 = cursor1.get_center()
+        self.play(FadeIn(terminal), FadeIn(prompt1), FadeIn(cursor1), run_time=0.5)
+        for anim in cursor1.blinking_on():
+            self.play(anim)
+        for anim in cursor1.write_text("CREATE TABLE Books ( Title TEXT,",t2c={'CREATE':YELLOW,'TABLE':YELLOW, 'TEXT':YELLOW}):
+            self.play(*anim)
+        cursor1.next_to(old_position1,DOWN,buff=0.15)
+        for anim in cursor1.write_text("Author TEXT, PYear INT, Genre TEXT );",t2c={'TEXT':YELLOW,'INT':YELLOW}):
+            self.play(*anim)
+        table1 = Table([["Title", "Author", "PYear", "Genre"],
+                        ],line_config={'color': WHITE},include_outer_lines=True).scale(0.3).move_to([-3,1,0])
+        prompt2 = TerminalPrompt("postgres>",color=PINK).next_to(prompt1,DOWN*2,buff=0.2)
+        cursor2 = BlinkingCursor().next_to(prompt2)
+        self.play(FadeOut(cursor1),FadeIn(prompt2), FadeIn(cursor2), run_time=0.5)
+        self.play(GrowFromPoint(table1,prompt1))
         self.wait(5)
