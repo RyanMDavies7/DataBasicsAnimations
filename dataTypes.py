@@ -180,4 +180,30 @@ class DataTypes(Scene):
         cursor2 = BlinkingCursor().next_to(prompt2)
         self.play(FadeOut(cursor1),FadeIn(prompt2), FadeIn(cursor2), run_time=0.5)
         self.play(GrowFromPoint(table1,prompt1))
+        insert = Text("INSERT into a Table", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*1.9)
+        insert.set_stroke(color=BLACK,opacity=1)
+        highlighting_rectangle2 = Rectangle(width=3.8,height=0.28).move_to(insert.get_center()+[0,-0.15,0])
+        highlighting_rectangle2.set_fill(color="#1be7ff", opacity=.5)
+        highlighting_rectangle2.set_stroke(color=None, opacity=0)
+        insert.set_z_index(highlighting_rectangle2.z_index+1)
+        self.play(ReplacementTransform(highlighting_rectangle1,highlighting_rectangle2))
+        self.play(ReplacementTransform(create,insert))
+        old_position2 = cursor2.get_center()
+        for anim in cursor2.blinking_on():
+            self.play(anim)
+        for anim in cursor2.write_text("INSERT INTO Books (Title, Author, PYear,",t2c={'INSERT':YELLOW,'INTO':YELLOW}):
+            self.play(*anim)
+        cursor2.next_to(old_position2,DOWN,buff=0.15)
+        old_position3 = cursor2.get_center()
+        for anim in cursor2.write_text("Genre) VALUES ('The Great Gatsby',",t2c={'VALUES':YELLOW}):
+            self.play(*anim)
+        cursor2.next_to(old_position3,DOWN,buff=0.15)
+        for anim in cursor2.write_text("'F. Scott Fitzgerald', 1926, 'Fiction');"):
+            self.play(*anim)
+        table2 = Table([["Title", "Author", "PYear", "Genre"],
+                        ["The Great Gatsby", "F. Scott Fitzgerald", "1926", "Fiction"]],line_config={'color': WHITE},include_outer_lines=True).scale(0.3).next_to(table1,DOWN*2)
+        prompt3 = TerminalPrompt("postgres>",color=PINK).next_to(prompt2,DOWN*3,buff=0.2)
+        cursor3 = BlinkingCursor().next_to(prompt3)
+        self.play(FadeOut(cursor2),FadeIn(prompt3), FadeIn(cursor3), run_time=0.5)
+        self.play(GrowFromPoint(table2,prompt2))
         self.wait(5)
