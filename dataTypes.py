@@ -65,6 +65,7 @@ class DataTypes(Scene):
         self.play(FadeIn(sql_logo))
         always_rotate(gear_image, rate=60*DEGREES)
         title = Text("Data Types and Managing Data", font=font_to_use,color=BLACK).set_stroke(width=1,color="#FFFFFF",opacity=1).scale(0.6).next_to(sql_logo,RIGHT*3)
+        title.save_state()
         self.wait(2)
         self.play(DrawBorderThenFill(title))
         self.wait(1)
@@ -153,7 +154,7 @@ class DataTypes(Scene):
         
         
         
-        
+        self.play(Restore(title), FadeToColor(title[12:], YELLOW), run_time=1.5)
         create = Text("CREATE a Table", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*1.5)
         create.set_stroke(color=BLACK,opacity=1)
         highlighting_rectangle1 = Rectangle(width=3.1,height=0.28).move_to(create.get_center()+[0,-0.15,0])
@@ -206,4 +207,59 @@ class DataTypes(Scene):
         cursor3 = BlinkingCursor().next_to(prompt3)
         self.play(FadeOut(cursor2),FadeIn(prompt3), FadeIn(cursor3), run_time=0.5)
         self.play(GrowFromPoint(table2,prompt2))
+        
+        
+        
+        
+        
+        update = Text("UPDATE values in a Table", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*2.5)
+        update.set_stroke(color=BLACK,opacity=1)
+        highlighting_rectangle3 = Rectangle(width=5,height=0.28).move_to(update.get_center()+[0,-0.15,0])
+        highlighting_rectangle3.set_fill(color="#1be7ff", opacity=.5)
+        highlighting_rectangle3.set_stroke(color=None, opacity=0)
+        update.set_z_index(highlighting_rectangle3.z_index+1)
+        self.play(ReplacementTransform(highlighting_rectangle2,highlighting_rectangle3))
+        self.play(ReplacementTransform(insert,update))
+        old_position4 = cursor3.get_center()
+        for anim in cursor3.blinking_on():
+            self.play(anim)
+        for anim in cursor3.write_text("UPDATE Books SET PYear = 1925",t2c={'UPDATE':YELLOW,'SET':YELLOW}):
+            self.play(*anim)
+        cursor3.next_to(old_position4,DOWN,buff=0.15)
+        for anim in cursor3.write_text("WHERE Title = 'The Great Gatsby';",t2c={'WHERE':YELLOW}):
+            self.play(*anim)
+            
+        table3 = Table([["Title", "Author", "PYear", "Genre"],
+                        ["The Great Gatsby", "F. Scott Fitzgerald", "1926", "Fiction"]],line_config={'color': WHITE},include_outer_lines=True).scale(0.3).next_to(table2,DOWN*2)
+        
+        prompt4 = TerminalPrompt("postgres>",color=PINK).next_to(prompt3,DOWN*2,buff=0.2)
+        cursor4 = BlinkingCursor().next_to(prompt4)
+        self.play(FadeOut(cursor3),FadeIn(prompt4), FadeIn(cursor4), run_time=0.5)
+        self.play(ReplacementTransform(table2.copy(),table3))
+        self.play(Transform(table3.get_entries((2, 3)), Text("1925").scale(0.3).move_to(table3.get_entries((2, 3)))))
+        
+        
+        
+        
+        delete = Text("DELETE values from a Table", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*2.9)
+        delete.set_stroke(color=BLACK,opacity=1)
+        highlighting_rectangle4 = Rectangle(width=5.5,height=0.28).move_to(delete.get_center()+[0,-0.15,0])
+        highlighting_rectangle4.set_fill(color="#1be7ff", opacity=.5)
+        highlighting_rectangle4.set_stroke(color=None, opacity=0)
+        delete.set_z_index(highlighting_rectangle4.z_index+1)
+        self.play(ReplacementTransform(highlighting_rectangle3,highlighting_rectangle4))
+        self.play(ReplacementTransform(update,delete))
+        old_position5 = cursor4.get_center()
+        for anim in cursor4.blinking_on():
+            self.play(anim)
+        for anim in cursor4.write_text("DELETE FROM Books",t2c={'DELETE':YELLOW,'FROM':YELLOW}):
+            self.play(*anim)
+        cursor4.next_to(old_position5,DOWN,buff=0.15)
+        for anim in cursor4.write_text("WHERE Title = 'The Great Gatsby';",t2c={'WHERE':YELLOW}):
+            self.play(*anim)
+        prompt5 = TerminalPrompt("postgres>",color=PINK).next_to(prompt4,DOWN*2,buff=0.2)
+        cursor5 = BlinkingCursor().next_to(prompt5)
+        self.play(FadeOut(cursor4),FadeIn(prompt5), FadeIn(cursor5), run_time=0.5)
+        self.play(FadeOut(table3,table2))
+        
         self.wait(5)
