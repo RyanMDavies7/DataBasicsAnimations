@@ -175,12 +175,23 @@ class DataTypes(Scene):
         cursor1.next_to(old_position1,DOWN,buff=0.15)
         for anim in cursor1.write_text("Author TEXT, PYear INT, Genre TEXT );",t2c={'TEXT':YELLOW,'INT':YELLOW}):
             self.play(*anim)
-        table1 = Table([["Title", "Author", "PYear", "Genre"],
+        table1 = Table([["Title", "Author", "PYear", "Genre", "DateAdded"],
                         ],line_config={'color': WHITE},include_outer_lines=True).scale(0.3).move_to([-3,1,0])
+        cell5 = VGroup(table1.get_cell((1,5),color=WHITE),table1.get_entries((1,5)))
+        table1 = VGroup(table1.get_cell((1,1),color=WHITE),table1.get_cell((1,2),color=WHITE),
+                        table1.get_cell((1,3),color=WHITE),table1.get_cell((1,4),color=WHITE),
+                        table1.get_entries((1,1)),table1.get_entries((1,2)),
+                        table1.get_entries((1,3)),table1.get_entries((1,4)))
+        
         prompt2 = TerminalPrompt("postgres>",color=PINK).next_to(prompt1,DOWN*2,buff=0.2)
         cursor2 = BlinkingCursor().next_to(prompt2)
         self.play(FadeOut(cursor1),FadeIn(prompt2), FadeIn(cursor2), run_time=0.5)
         self.play(GrowFromPoint(table1,prompt1))
+        
+        
+        
+        
+        
         insert = Text("INSERT into a Table", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*1.9)
         insert.set_stroke(color=BLACK,opacity=1)
         highlighting_rectangle2 = Rectangle(width=3.8,height=0.28).move_to(insert.get_center()+[0,-0.15,0])
@@ -262,4 +273,67 @@ class DataTypes(Scene):
         self.play(FadeOut(cursor4),FadeIn(prompt5), FadeIn(cursor5), run_time=0.5)
         self.play(FadeOut(table3,table2))
         
+        
+        
+        
+        
+        
+        alter = Text("ALTER values in a Table", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*2.9)
+        alter.set_stroke(color=BLACK,opacity=1)
+        highlighting_rectangle5 = Rectangle(width=5,height=0.28).move_to(alter.get_center()+[0,-0.15,0])
+        highlighting_rectangle5.set_fill(color="#1be7ff", opacity=.5)
+        highlighting_rectangle5.set_stroke(color=None, opacity=0)
+        alter.set_z_index(highlighting_rectangle5.z_index+1)
+        self.play(ReplacementTransform(highlighting_rectangle4,highlighting_rectangle5))
+        self.play(ReplacementTransform(delete,alter))
+        old_position6 = cursor5.get_center()
+        for anim in cursor5.blinking_on():
+            self.play(anim)
+        for anim in cursor5.write_text("ALTER TABLE Books",t2c={'ALTER':YELLOW,'TABLE':YELLOW}):
+            self.play(*anim)
+        cursor5.next_to(old_position6,DOWN,buff=0.15)
+        for anim in cursor5.write_text("ADD COLUMN DateAdded DATE;",t2c={'ADD':YELLOW,'COLUMN':YELLOW,'DATE':YELLOW}):
+            self.play(*anim)
+        prompt6 = TerminalPrompt("postgres>",color=PINK).next_to(prompt5,DOWN*2,buff=0.2)
+        cursor6 = BlinkingCursor().next_to(prompt6)
+        self.play(FadeOut(cursor5),FadeIn(prompt6), FadeIn(cursor6), run_time=0.5)
+        self.wait(1)
+        self.play(FadeIn(cell5))
+        
+        
+        
+        
+        
+        
+        insert2 = Text("ALTER values with a Date", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*2.9)
+        insert2.set_stroke(color=BLACK,opacity=1)
+        highlighting_rectangle6 = Rectangle(width=5,height=0.28).move_to(insert2.get_center()+[0,-0.15,0])
+        highlighting_rectangle6.set_fill(color="#1be7ff", opacity=.5)
+        highlighting_rectangle6.set_stroke(color=None, opacity=0)
+        insert2.set_z_index(highlighting_rectangle6.z_index+1)
+        self.play(ReplacementTransform(highlighting_rectangle5,highlighting_rectangle6))
+        self.play(ReplacementTransform(alter,insert2))
+        old_position7 = cursor6.get_center()
+        for anim in cursor6.blinking_on():
+            self.play(anim)
+        for anim in cursor6.write_text("INSERT INTO Books (Title, Author, PYear,",t2c={'INSERT':YELLOW,'INTO':YELLOW}):
+            self.play(*anim)
+        cursor6.next_to(old_position7,DOWN,buff=0.15)
+        old_position8 = cursor6.get_center()
+        for anim in cursor6.write_text("Genre, DateAdded) VALUES ('The Great ",t2c={'VALUES':YELLOW}):
+            self.play(*anim)
+        cursor6.next_to(old_position8,DOWN,buff=0.15)
+        old_position9 = cursor6.get_center()
+        for anim in cursor6.write_text("Gatsby','F. Scott Fitzgerald', 1926, 'Fiction'"):
+            self.play(*anim)
+        cursor6.next_to(old_position9,DOWN,buff=0.15)
+        for anim in cursor6.write_text("2023-11-06');"):
+            self.play(*anim)
+        table4 = Table([["Title", "Author", "PYear", "Genre", "DateAdded"],
+                        ["The Great Gatsby", "F. Scott Fitzgerald", "1926", "Fiction","2023-11-06"]],line_config={'color': WHITE},include_outer_lines=True).scale(0.25).next_to(table1,DOWN*2)
+        
+        prompt7 = TerminalPrompt("postgres>",color=PINK).next_to(prompt6,DOWN*4,buff=0.2)
+        cursor7 = BlinkingCursor().next_to(prompt7)
+        self.play(FadeOut(cursor6),FadeIn(prompt7), FadeIn(cursor7), run_time=0.5)
+        self.play(ReplacementTransform(table1.copy(),table4))
         self.wait(5)
