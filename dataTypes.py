@@ -330,10 +330,49 @@ class DataTypes(Scene):
         for anim in cursor6.write_text("2023-11-06');"):
             self.play(*anim)
         table4 = Table([["Title", "Author", "PYear", "Genre", "DateAdded"],
-                        ["The Great Gatsby", "F. Scott Fitzgerald", "1926", "Fiction","2023-11-06"]],line_config={'color': WHITE},include_outer_lines=True).scale(0.25).next_to(table1,DOWN*2)
+                        ["The Great Gatsby", "F. Scott Fitzgerald", "1926", "Fiction","2023-11-06"]],line_config={'color': WHITE},include_outer_lines=True).scale(0.25).next_to(table1,DOWN*2).shift(RIGHT*0.5)
         
         prompt7 = TerminalPrompt("postgres>",color=PINK).next_to(prompt6,DOWN*4,buff=0.2)
         cursor7 = BlinkingCursor().next_to(prompt7)
         self.play(FadeOut(cursor6),FadeIn(prompt7), FadeIn(cursor7), run_time=0.5)
         self.play(ReplacementTransform(table1.copy(),table4))
+        
+        
+        
+        
+        
+        indexing = Text("Creating an Index", font=font_to_use).scale(0.6).next_to(title,DOWN).shift(LEFT*2.1)
+        indexing.set_stroke(color=BLACK,opacity=1)
+        highlighting_rectangle7 = Rectangle(width=3.5,height=0.28).move_to(indexing.get_center()+[0,-0.15,0])
+        highlighting_rectangle7.set_fill(color="#1be7ff", opacity=.5)
+        highlighting_rectangle7.set_stroke(color=None, opacity=0)
+        indexing.set_z_index(highlighting_rectangle7.z_index+1)
+        self.play(ReplacementTransform(highlighting_rectangle6,highlighting_rectangle7))
+        self.play(ReplacementTransform(insert2,indexing))
+        old_position10 = cursor7.get_center()
+        for anim in cursor7.blinking_on():
+            self.play(anim)
+        for anim in cursor7.write_text("CREATE INDEX author_index",t2c={'CREATE':YELLOW,'INDEX':YELLOW}):
+            self.play(*anim)
+        cursor7.next_to(old_position10,DOWN,buff=0.15)
+        for anim in cursor7.write_text("ON Books(Author);",t2c={'ON':YELLOW}):
+            self.play(*anim)
+        prompt8 = TerminalPrompt("postgres>",color=PINK).next_to(prompt7,DOWN*2,buff=0.2)
+        cursor8 = BlinkingCursor().next_to(prompt8)
+        self.play(FadeOut(cursor7),FadeIn(prompt8), FadeIn(cursor8), run_time=0.5)
+        self.wait(1)
+        check_index = Text("SELECT indexname,indexdef\nFROM\npg_indexes\nWHERE\ntablename='Books';", font=font_to_use,line_spacing=1,t2c={'SELECT':YELLOW, 'FROM':YELLOW, 'WHERE':YELLOW, 'Books':PURE_GREEN}).scale(0.4).next_to(table4,DOWN*2,aligned_edge=LEFT).shift(RIGHT*2)
+        self.play(FadeIn(check_index))
+        self.wait(4)
+        self.play(FadeOut(check_index))
+        table5 = Table([['indexname', 'indexdef'],
+                        ['author_index', 'Create UNIQUE INDEX author_index ON\nLibrary.Books USING btree (book_id)']],line_config={'color': WHITE},include_outer_lines=True).scale(0.25).next_to(table4,DOWN*2).shift(RIGHT*0.5)
+        self.play(FadeIn(table5))
+        self.wait(3)
+        self.play(FadeOut(table5))
+        for anim in cursor8.blinking_on():
+            self.play(anim)
+        for anim in cursor8.write_text("DROP TABLE Books;",t2c={'DROP':YELLOW,'TABLE':YELLOW}):
+            self.play(*anim)
+        self.play(FadeOut(table1,table4,cell5))
         self.wait(5)
